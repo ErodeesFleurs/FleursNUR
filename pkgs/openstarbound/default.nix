@@ -15,6 +15,18 @@
   ...
 }:
 
+let
+  libraries = [
+    libGL
+    libGLU
+    libSM
+    libICE
+    libX11
+    libXext
+    libgcc
+  ];
+in
+
 stdenv.mkDerivation rec {
   name = "OpenStarbound-${version}";
   version = "Nightly";
@@ -64,8 +76,10 @@ stdenv.mkDerivation rec {
         "logDirectory": "\$HOME/.local/share/OpenStarbound/logs"
       }
 
-    makeWrapper $out/linux/starbound $out/bin/openstarbound \
-      --add-flags "--bootconfig $out/linux/boot.config"
+    makeWrapper $out/linux/starbound $out/bin/ \
+      --argv0 "starbound" \
+      --add-flags "--bootconfig $out/linux/boot.config" \
+      --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath libraries}
   '';
 
   meta = {
