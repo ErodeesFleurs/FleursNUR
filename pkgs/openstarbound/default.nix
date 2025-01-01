@@ -4,6 +4,13 @@
   fetchurl,
   autoPatchelfHook,
   unzip,
+  libGL,
+  libGLU,
+  libSM,
+  libICE,
+  libX11,
+  libXext,
+  libgcc,
   ...
 }:
 
@@ -18,6 +25,15 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [
     autoPatchelfHook
     unzip
+
+    # Required libraries
+    libGL
+    libGLU
+    libSM
+    libICE
+    libX11
+    libXext
+    libgcc
   ];
 
   unpackPhase = ''
