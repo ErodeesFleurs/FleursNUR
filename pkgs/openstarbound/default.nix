@@ -3,7 +3,6 @@
   fetchurl,
   autoPatchelfHook,
   unzip,
-  tar,
   ...
 }:
 
@@ -18,7 +17,6 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [
     autoPatchelfHook
     unzip
-    tar
   ];
 
   unpackPhase = ''
