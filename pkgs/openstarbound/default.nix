@@ -31,8 +31,8 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/{linux, assets}
 
-    cp -r $TMPDIR/build/linux $out
-    cp -r $TMPDIR/build/assets $out
+    cp -r $TMPDIR/build/client_distribution/linux $out
+    cp -r $TMPDIR/build/client_distribution/assets $out
   '';
 
   meta = {
