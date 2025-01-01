@@ -64,7 +64,7 @@ stdenv.mkDerivation rec {
         "logDirectory": "\$HOME/.local/share/OpenStarbound/logs"
       }
 
-    makeWrapper $out/linux/starbound $out/bin/starbound \
+    makeWrapper $out/linux/starbound $out/bin/openstarbound \
       --add-flags "--bootconfig $out/linux/boot.config"
   '';
 
