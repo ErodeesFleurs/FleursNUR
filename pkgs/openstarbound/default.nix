@@ -25,8 +25,8 @@ stdenv.mkDerivation rec {
     mkdir -p $TMPDIR/build
     unzip $src -d $TMPDIR/build
 
-    # Extract dist.tar
-    tar -xvf $TMPDIR/build/dist.tar -C $TMPDIR/build
+    # Extract client.tar
+    tar -xvf $TMPDIR/build/client.tar -C $TMPDIR/build
   '';
   installPhase = ''
     mkdir -p $out/{linux, assets}
