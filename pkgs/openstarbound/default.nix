@@ -1,6 +1,7 @@
 {
   lib,
   stdenv,
+  import,
   writeShellApplication,
   ...
 }:
