@@ -38,7 +38,5 @@ stdenv.mkDerivation rec {
   meta = {
     description = "OpenStarbound is a free open-source Starbound server implementation";
     homepage = "https://github.com/OpenStarbound/OpenStarbound";
-    license = stdenv.lib.licenses.mit;
-    platforms = stdenv.lib.platforms.linux;
   };
 }
