@@ -76,7 +76,7 @@ stdenv.mkDerivation rec {
         "logDirectory": "\$HOME/.local/share/OpenStarbound/logs"
       }
 
-    makeWrapper $out/linux/starbound $out/bin/ \
+    makeWrapper $out/linux/starbound $out/bin/openstarbound \
       --argv0 "starbound" \
       --add-flags "--bootconfig $out/linux/boot.config" \
       --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath libraries}
@@ -86,6 +86,6 @@ stdenv.mkDerivation rec {
     description = "OpenStarbound is a free open-source Starbound server implementation";
     homepage = "https://github.com/OpenStarbound/OpenStarbound";
     platforms = [ "x86_64-linux" ];
-    mainProgram = "starbound";
+    mainProgram = "openstarbound";
   };
 }
