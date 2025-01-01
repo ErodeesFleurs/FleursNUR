@@ -3,6 +3,17 @@
   stdenv,
   import,
   writeShellApplication,
+  fetchurl,
+  autoPatchelfHook,
+  makeWrapper,
+  unzip,
+  libGL,
+  libGLU,
+  libSM,
+  libICE,
+  libX11,
+  libXext,
+  libgcc,
   ...
 }:
 
