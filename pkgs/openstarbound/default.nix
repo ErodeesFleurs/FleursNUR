@@ -12,7 +12,7 @@ stdenv.mkDerivation rec {
   version = "Nightly";
   src = fetchurl {
     url = "https://nightly.link/OpenStarbound/OpenStarbound/workflows/build/main/OpenStarbound-Linux-Client.zip";
-    sha256 = "KARChrAZHrVPcGZb4Mkt6oCfQb5V/T+wU/8Qi/L8zHQ=";
+    sha256 = "sha256-KARChrAZHrVPcGZb4Mkt6oCfQb5V/T+wU/8Qi/L8zHQ=";
   };
 
   nativeBuildInputs = [
