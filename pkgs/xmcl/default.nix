@@ -11,7 +11,7 @@ let
   version = "0.48.3";
   src = fetchurl {
     url = "https://github.com/Voxelum/x-minecraft-launcher/releases/download/v${version}/xmcl-${version}-x64.tar.xz";
-    hash = "sha256-y/Nx02ZO9V9wBJaZf5GDvPDInm2Ifxh9boZ7U9K4adY=";
+    hash = "sha256-mlBatBgbbfqqV0+2dZaxJSD4KQ8T4wF//IzwOrE/46s=";
   };
   # appimageContents = appimageTools.extractType2 { inherit pname src version; };
   meta = with lib; {
