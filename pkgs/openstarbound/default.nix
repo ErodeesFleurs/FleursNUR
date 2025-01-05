@@ -1,6 +1,7 @@
 {
   lib,
   stdenv,
+  writeShellApplication,
   fetchurl,
   autoPatchelfHook,
   makeWrapper,
@@ -16,76 +17,99 @@
 }:
 
 let
-  libraries = [
-    libGL
-    libGLU
-    libSM
-    libICE
-    libX11
-    libXext
-    libgcc
-  ];
+  openstarbound-raw =
+    let
+      libraries = [
+        libGL
+        libGLU
+        libSM
+        libICE
+        libX11
+        libXext
+        libgcc
+      ];
+    in
+    stdenv.mkDerivation rec {
+      name = "OpenStarbound-${version}";
+      version = "Nightly";
+      src = fetchurl {
+        url = "https://nightly.link/OpenStarbound/OpenStarbound/workflows/build/main/OpenStarbound-Linux-Client.zip";
+        sha256 = "sha256-KARChrAZHrVPcGZb4Mkt6oCfQb5V/T+wU/8Qi/L8zHQ=";
+      };
+
+      nativeBuildInputs = [
+        autoPatchelfHook
+        makeWrapper
+        unzip
+
+        # Required libraries
+        libGL
+        libGLU
+        libSM
+        libICE
+        libX11
+        libXext
+        libgcc
+      ];
+
+      unpackPhase = ''
+        # Unzip the downloaded file
+        mkdir -p $TMPDIR/build
+        unzip $src -d $TMPDIR/build
+
+        # Extract client.tar
+        tar -xvf $TMPDIR/build/client.tar -C $TMPDIR/build
+      '';
+      installPhase = ''
+        mkdir -p $out/linux
+        mkdir -p $out/assets
+        mkdir -p $out/bin
+
+        cp -r $TMPDIR/build/client_distribution/linux $out
+        cp -r $TMPDIR/build/client_distribution/assets $out
+
+        makeWrapper $out/linux/starbound $out/bin/openstarbound \
+          --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath libraries}
+      '';
+
+      meta = {
+        description = "OpenStarbound is a free open-source Starbound server implementation";
+        homepage = "https://github.com/OpenStarbound/OpenStarbound";
+        platforms = [ "x86_64-linux" ];
+        mainProgram = "openstarbound";
+      };
+    };
+
 in
 
-stdenv.mkDerivation rec {
-  name = "OpenStarbound-${version}";
-  version = "Nightly";
-  src = fetchurl {
-    url = "https://nightly.link/OpenStarbound/OpenStarbound/workflows/build/main/OpenStarbound-Linux-Client.zip";
-    sha256 = "sha256-KARChrAZHrVPcGZb4Mkt6oCfQb5V/T+wU/8Qi/L8zHQ=";
-  };
+writeShellApplication {
+  name = "openstarbound-${openstarbound-raw.version}";
+  runtimeInputs = [ openstarbound-raw ];
+  text = ''
+    steam_assets_dir="$HOME/.local/share/Steam/steamapps/common/Starbound/assets"
+    storage_dir="$HOME/.local/share/OpenStarbound/storage"
+    log_dir="$HOME/.local/share/OpenStarbound/logs"
+    mod_dir="$HOME/.local/share/OpenStarbound/mods"
 
-  nativeBuildInputs = [
-    autoPatchelfHook
-    makeWrapper
-    unzip
+    mkdir -p "$storage_dir"
+    tmp_cfg="$(mktemp -t openstarbound.XXXXXXXX)"
 
-    # Required libraries
-    libGL
-    libGLU
-    libSM
-    libICE
-    libX11
-    libXext
-    libgcc
-  ];
-
-  unpackPhase = ''
-    # Unzip the downloaded file
-    mkdir -p $TMPDIR/build
-    unzip $src -d $TMPDIR/build
-
-    # Extract client.tar
-    tar -xvf $TMPDIR/build/client.tar -C $TMPDIR/build
-  '';
-  installPhase = ''
-    mkdir -p $out/{linux, assets, bin}
-
-    cp -r $TMPDIR/build/client_distribution/linux $out
-    cp -r $TMPDIR/build/client_distribution/assets $out
-
-    cat << EOF > $out/linux/boot.config
-      {
+    cat << EOF > "$tmp_cfg"
+    {
         "assetDirectories": [
-          "\$HOME/.local/share/Steam/steamapps/common/Starbound/assets",
-          "\$HOME/.local/share/OpenStarbound/mods",
-          "$out/assets",
-          "$out/linux/assets"
+        "$steam_assets_dir",
+        "$mod_dir",
+        "../assets"
         ],
-        "storageDirectory": "\$HOME/.local/share/OpenStarbound/storage",
-        "logDirectory": "\$HOME/.local/share/OpenStarbound/logs"
-      }
+        "storageDirectory": "$storage_dir",
+        "logDirectory": "$log_dir"
+    }
+    EOF
 
-    makeWrapper $out/linux/starbound $out/bin/openstarbound \
-      --argv0 "starbound" \
-      --add-flags "--bootconfig $out/linux/boot.config" \
-      --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath libraries}
+    openstarbound \
+      -bootconfig "$tmp_cfg"
+      "$@"
+
+    rm "$tmp_cfg"
   '';
-
-  meta = {
-    description = "OpenStarbound is a free open-source Starbound server implementation";
-    homepage = "https://github.com/OpenStarbound/OpenStarbound";
-    platforms = [ "x86_64-linux" ];
-    mainProgram = "openstarbound";
-  };
 }

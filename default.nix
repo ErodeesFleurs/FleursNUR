@@ -18,6 +18,7 @@
 
   example-package = pkgs.callPackage ./pkgs/example-package { };
   openstarbound = pkgs.callPackage ./pkgs/openstarbound { };
+  xmcl = pkgs.callPackage ./pkgs/xmcl { };
   # some-qt5-package = pkgs.libsForQt5.callPackage ./pkgs/some-qt5-package { };
   # ...
 }
