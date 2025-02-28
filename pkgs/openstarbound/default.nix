@@ -16,7 +16,7 @@
   glibc,
   alsa-lib,
   pipewire,
-  kdePackages.wayland,
+  kdePackages,
   ...
 }:
 
