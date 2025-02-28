@@ -71,7 +71,7 @@ let
         --replace \
           '/usr/share/locale/' \
           '${glibc}/share/locale/'
-      ''
+      '';
 
       unpackPhase = ''
         # Unzip the downloaded file
