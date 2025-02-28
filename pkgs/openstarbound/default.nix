@@ -14,7 +14,7 @@
   libXext,
   libgcc,
   glibc,
-  alsaLib,
+  alsa-lib,
   ...
 }:
 
@@ -40,7 +40,7 @@ let
       };
 
       buildInputs = [
-        alsaLib
+        alsa-lib
       ];
 
       nativeBuildInputs = [
