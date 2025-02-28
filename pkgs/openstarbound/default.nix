@@ -13,6 +13,8 @@
   libX11,
   libXext,
   libgcc,
+  glibc,
+  alsaLib,
   ...
 }:
 
@@ -37,12 +39,18 @@ let
         sha256 = "sha256-/5goflh8E6e4fWwpdI5cMwFqCW1LsTXDTtp9jHPzFP4=";
       };
 
+      buildInputs = [
+        alsaLib
+
+      ]
+
       nativeBuildInputs = [
         autoPatchelfHook
         makeWrapper
         unzip
 
         # Required libraries
+        # kdePackages.wayland
         libGL
         libGLU
         libSM
@@ -52,6 +60,19 @@ let
         libgcc
       ];
 
+      postPatchelfHook = ''
+        substituteInPlace services/audio/audio_sandbox_hook_linux.cc \
+        --replace \
+          '/usr/share/alsa/' \
+          '${alsaLib}/share/alsa/' \
+        --replace \
+          '/usr/lib/x86_64-linux-gnu/gconv/' \
+          '${glibc}/lib/gconv/' \
+        --replace \
+          '/usr/share/locale/' \
+          '${glibc}/share/locale/'
+      ''
+
       unpackPhase = ''
         # Unzip the downloaded file
         mkdir -p $TMPDIR/build
@@ -60,6 +81,7 @@ let
         # Extract client.tar
         tar -xvf $TMPDIR/build/client.tar -C $TMPDIR/build
       '';
+
       installPhase = ''
         mkdir -p $out/linux
         mkdir -p $out/assets
