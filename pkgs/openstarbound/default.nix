@@ -15,6 +15,8 @@
   libgcc,
   glibc,
   alsa-lib,
+  pipewire,
+  kdePackages.wayland,
   ...
 }:
 
@@ -29,6 +31,9 @@ let
         libX11
         libXext
         libgcc
+        pipewire
+        alsa-lib
+        kdePackages.wayland
       ];
     in
     stdenv.mkDerivation rec {
@@ -40,7 +45,9 @@ let
       };
 
       buildInputs = [
+        pipewire
         alsa-lib
+        kdePackages.wayland
       ];
 
       nativeBuildInputs = [
