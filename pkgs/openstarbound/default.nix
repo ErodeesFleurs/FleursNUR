@@ -48,15 +48,6 @@ let
         pipewire
         alsa-lib
         kdePackages.wayland
-      ];
-
-      nativeBuildInputs = [
-        autoPatchelfHook
-        makeWrapper
-        unzip
-
-        # Required libraries
-        # kdePackages.wayland
         libGL
         libGLU
         libSM
@@ -64,6 +55,12 @@ let
         libX11
         libXext
         libgcc
+      ];
+
+      nativeBuildInputs = [
+        autoPatchelfHook
+        makeWrapper
+        unzip
       ];
 
       postPatchelfHook = ''
