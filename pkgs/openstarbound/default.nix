@@ -41,8 +41,7 @@ let
 
       buildInputs = [
         alsaLib
-
-      ]
+      ];
 
       nativeBuildInputs = [
         autoPatchelfHook
