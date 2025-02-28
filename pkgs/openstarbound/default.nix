@@ -16,7 +16,7 @@
   glibc,
   alsa-lib,
   pipewire,
-  kdePackages,
+  wayland,
   ...
 }:
 
@@ -33,7 +33,7 @@ let
         libgcc
         pipewire
         alsa-lib
-        kdePackages.wayland
+        wayland
       ];
     in
     stdenv.mkDerivation rec {
@@ -47,7 +47,7 @@ let
       buildInputs = [
         pipewire
         alsa-lib
-        kdePackages.wayland
+        wayland
         libGL
         libGLU
         libSM
