@@ -63,7 +63,7 @@ let
         substituteInPlace services/audio/audio_sandbox_hook_linux.cc \
         --replace \
           '/usr/share/alsa/' \
-          '${alsaLib}/share/alsa/' \
+          '${alsa-lib}/share/alsa/' \
         --replace \
           '/usr/lib/x86_64-linux-gnu/gconv/' \
           '${glibc}/lib/gconv/' \
