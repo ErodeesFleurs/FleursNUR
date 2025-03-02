@@ -1,116 +1,88 @@
 {
-  lib,
-  stdenv,
-  writeShellApplication,
-  fetchurl,
-  autoPatchelfHook,
-  makeWrapper,
-  unzip,
-  libGL,
-  libGLU,
-  libSM,
-  libICE,
-  libX11,
-  libXext,
-  libgcc,
-  glibc,
-  alsa-lib,
-  pipewire,
-  wayland,
-  ...
+    lib,
+    stdenv,
+    writeShellApplication,
+    fetchFromGitHub,
+    clangStdenv,
+    gnumake,
+    cmake,
+    pkg-config,
+    zlib,
+    zstd,
+    xorg,
+    glew,
+    libpng,
+    freetype,
+    libvorbis,
+    libopus,
+    SDL2,
+    ...
 }:
 
-let
-  openstarbound-raw =
-    let
-      libraries = [
-        libGL
-        libGLU
-        libSM
-        libICE
-        libX11
-        libXext
-        libgcc
-        pipewire
-        alsa-lib
-        wayland
-      ];
-    in
-    stdenv.mkDerivation rec {
-      name = "OpenStarbound-${version}";
-      version = "Nightly";
-      src = fetchurl {
-        url = "https://nightly.link/OpenStarbound/OpenStarbound/workflows/build/main/OpenStarbound-Linux-Client.zip";
-        sha256 = "sha256-/5goflh8E6e4fWwpdI5cMwFqCW1LsTXDTtp9jHPzFP4=";
-      };
+let openstarbound-raw =
+    clangStdenv.mkDerivation rec {
+        pname = "openstarbound-raw";
+        version = "nightly";
 
-      buildInputs = [
-        pipewire
-        alsa-lib
-        wayland
-        libGL
-        libGLU
-        libSM
-        libICE
-        libX11
-        libXext
-        libgcc
-      ];
+        buildInputs = [
+            zlib
+            zstd
+            xorg.libSM
+            xorg.libXi
+            glew
+            libpng
+            freetype
+            libvorbis
+            libopus
+            SDL2
+        ];
+        
+        nativeBuildInputs = [
+            gnumake
+            cmake
+            pkg-config
+        ];
 
-      nativeBuildInputs = [
-        autoPatchelfHook
-        makeWrapper
-        unzip
-      ];
+        src = fetchFromGitHub ({
+            owner = "OpenStarbound";
+            repo = "OpenStarbound";
+            rev = "3893151";
+            fetchSubmodules = false;
+            sha256 = "sha256-eG6Lm3a+o56gZu8eAbZqWVavwYDzCqUvk/8K9mkTAAE=";
+        });
 
-      postPatchelfHook = ''
-        substituteInPlace services/audio/audio_sandbox_hook_linux.cc \
-        --replace \
-          '/usr/share/alsa/' \
-          '${alsa-lib}/share/alsa/' \
-        --replace \
-          '/usr/lib/x86_64-linux-gnu/gconv/' \
-          '${glibc}/lib/gconv/' \
-        --replace \
-          '/usr/share/locale/' \
-          '${glibc}/share/locale/'
-      '';
+        sourceRoot = "source/source";
 
-      unpackPhase = ''
-        # Unzip the downloaded file
-        mkdir -p $TMPDIR/build
-        unzip $src -d $TMPDIR/build
+        enableParallelBuilding = true;
 
-        # Extract client.tar
-        tar -xvf $TMPDIR/build/client.tar -C $TMPDIR/build
-      '';
+        cmakeFlags = [
+            "-DCMAKE_INSTALL_PREFIX=$out"
+            "-DCMAKE_BUILD_TYPE=Release"
+        ];
 
-      installPhase = ''
-        mkdir -p $out/linux
-        mkdir -p $out/assets
-        mkdir -p $out/bin
+        postPatch = ''
+            cp ${./patches/CMakeLists.txt} CMakeLists.txt
+            cp ${./patches/StarPythonic.hpp} core/StarPythonic.hpp
+            mkdir -p dist
+        '';
 
-        cp -r $TMPDIR/build/client_distribution/linux $out
-        cp -r $TMPDIR/build/client_distribution/assets $out
-
-        makeWrapper $out/linux/starbound $out/bin/openstarbound \
-          --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath libraries}
-      '';
-
-      meta = {
-        description = "OpenStarbound is a free open-source Starbound server implementation";
-        homepage = "https://github.com/OpenStarbound/OpenStarbound";
-        platforms = [ "x86_64-linux" ];
-        mainProgram = "openstarbound";
-      };
+        installPhase = ''
+            mkdir -p $out/linux
+            mkdir -p $out/assets
+            mkdir -p $out/bin
+            ls -la ../../
+            echo "Copying files"
+            ls -la
+            cp -r ../dist/* $out/linux
+            cp -r ../../assets/* $out/assets
+            install -Dm755 $out/linux/starbound $out/bin/openstarbound
+        '';
     };
-
 in
-
 writeShellApplication {
-  name = "openstarbound-${openstarbound-raw.version}";
-  runtimeInputs = [ openstarbound-raw ];
-  text = ''
+    name = "openstarbound-${openstarbound-raw.version}";
+    runtimeInputs = [ openstarbound-raw ];
+    text = ''
     steam_assets_dir="$HOME/.local/share/Steam/steamapps/common/Starbound/assets"
     storage_dir="$HOME/.local/share/OpenStarbound/storage"
     log_dir="$HOME/.local/share/OpenStarbound/logs"
