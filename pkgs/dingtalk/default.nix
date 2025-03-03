@@ -1,5 +1,6 @@
 {
   stdenv,
+  fetchurl,
   autoPatchelfHook,
   makeWrapper,
   lib,
