@@ -18,6 +18,7 @@
 
   openstarbound = pkgs.callPackage ./pkgs/openstarbound { };
   xmcl = pkgs.callPackage ./pkgs/xmcl { };
+  dingtalk = pkgs.callPackage ./pkgs/dingtalk { };
   # some-qt5-package = pkgs.libsForQt5.callPackage ./pkgs/some-qt5-package { };
   # ...
 }
