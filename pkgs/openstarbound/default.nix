@@ -46,7 +46,7 @@ let openstarbound-raw =
         src = fetchFromGitHub ({
             owner = "OpenStarbound";
             repo = "OpenStarbound";
-            rev = "409dcc3";
+            rev = "941f4f9";
             fetchSubmodules = false;
             sha256 = "sha256-q+hG5nTOHCbKwLw9S4h25nZDbb4tickKPW7hYV5CjfM=";
         });
