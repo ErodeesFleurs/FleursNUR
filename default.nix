@@ -17,6 +17,7 @@
   overlays = import ./overlays; # nixpkgs overlays
 
   openstarbound = pkgs.callPackage ./pkgs/openstarbound { };
-  # xmcl = pkgs.callPackage ./pkgs/xmcl { };
   dingtalk = pkgs.callPackage ./pkgs/dingtalk { };
+  uudeck = pkgs.callPackage ./pkgs/uudeck { };
+  # xmcl = pkgs.callPackage ./pkgs/xmcl { };
 }
