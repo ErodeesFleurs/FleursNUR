@@ -46,7 +46,7 @@ let
     src = fetchFromGitHub ({
       owner = "OpenStarbound";
       repo = "OpenStarbound";
-      rev = "c020d8b";
+      rev = "f58d485";
       fetchSubmodules = false;
       sha256 = "sha256-r1nQ7y8Oy8FS0txC+7hvQsc3g4TBJ+yKBoHFBaM0Xaw=";
     });
@@ -62,7 +62,6 @@ let
 
     postPatch = ''
       cp ${./patches/CMakeLists.txt} CMakeLists.txt
-      cp ${./patches/StarPythonic.hpp} core/StarPythonic.hpp
       mkdir -p dist
     '';
 
