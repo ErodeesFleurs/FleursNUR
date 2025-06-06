@@ -11,7 +11,7 @@
   xorg,
   glew,
   libpng,
-  jemalloc
+  jemalloc,
   freetype,
   libvorbis,
   libopus,
