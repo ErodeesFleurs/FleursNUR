@@ -3,7 +3,6 @@
   stdenv,
   writeShellApplication,
   fetchFromGitHub,
-  clangStdenv,
   gnumake,
   cmake,
   pkg-config,
@@ -12,6 +11,7 @@
   xorg,
   glew,
   libpng,
+  jemalloc
   freetype,
   libvorbis,
   libopus,
@@ -20,7 +20,7 @@
 }:
 
 let
-  openstarbound-raw = clangStdenv.mkDerivation rec {
+  openstarbound-raw = stdenv.mkDerivation rec {
     pname = "openstarbound-raw";
     version = "nightly";
 
@@ -31,6 +31,7 @@ let
       xorg.libXi
       glew
       libpng
+      jemalloc
       freetype
       libvorbis
       libopus
@@ -58,6 +59,7 @@ let
     cmakeFlags = [
       "-DCMAKE_INSTALL_PREFIX=$out"
       "-DCMAKE_BUILD_TYPE=Release"
+      "-DSTAR_USE_JEMALLOC=ON"
     ];
 
     postPatch = ''
