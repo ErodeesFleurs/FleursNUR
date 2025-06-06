@@ -3,6 +3,7 @@
   stdenv,
   writeShellApplication,
   fetchFromGitHub,
+  clangStdenv,
   gnumake,
   cmake,
   pkg-config,
@@ -20,7 +21,7 @@
 }:
 
 let
-  openstarbound-raw = stdenv.mkDerivation rec {
+  openstarbound-raw = clangStdenv.mkDerivation rec {
     pname = "openstarbound-raw";
     version = "nightly";
 
@@ -59,11 +60,12 @@ let
     cmakeFlags = [
       "-DCMAKE_INSTALL_PREFIX=$out"
       "-DCMAKE_BUILD_TYPE=Release"
-      # "-DSTAR_USE_JEMALLOC=ON"
+      "-DSTAR_USE_JEMALLOC=ON"
     ];
 
     postPatch = ''
       cp ${./patches/CMakeLists.txt} CMakeLists.txt
+      cp ${./patches/StarMemory.cpp} core/StarMemory.cpp
       mkdir -p dist
     '';
 
