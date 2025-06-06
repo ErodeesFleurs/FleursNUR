@@ -59,7 +59,7 @@ let
     cmakeFlags = [
       "-DCMAKE_INSTALL_PREFIX=$out"
       "-DCMAKE_BUILD_TYPE=Release"
-      "-DSTAR_USE_JEMALLOC=ON"
+      # "-DSTAR_USE_JEMALLOC=ON"
     ];
 
     postPatch = ''
