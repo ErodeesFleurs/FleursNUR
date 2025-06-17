@@ -477,6 +477,7 @@ find_package(PNG REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(OggVorbis REQUIRED)
 find_package(zstd CONFIG REQUIRED)
+find_package(re2 CONFIG REQUIRED)
 
 pkg_check_modules(opus REQUIRED IMPORTED_TARGET opus)
 
@@ -489,6 +490,7 @@ set(STAR_EXT_LIBS ${STAR_EXT_LIBS}
     ZLIB::ZLIB
     PNG::PNG
     PkgConfig::opus
+    re2::re2
     $<IF:$<TARGET_EXISTS:Freetype::Freetype>,Freetype::Freetype,freetype>
     $<IF:$<TARGET_EXISTS:zstd::libzstd_shared>,zstd::libzstd_shared,zstd::libzstd_static>
     ${VORBISFILE_LIBRARY}
