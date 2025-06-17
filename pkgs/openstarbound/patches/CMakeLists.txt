@@ -457,9 +457,11 @@ endif()
 
 # Find all required external libraries, based on build settings...
 
+find_package(PkgConfig REQUIRED)
+
 if(STAR_USE_JEMALLOC)
   # Assumes jemalloc was configured with a "je_" function prefix
-  find_package(JeMalloc REQUIRED)
+  pkg_check_modules(jemalloc REQUIRED IMPORTED_TARGET jemalloc)
 
   include_directories(SYSTEM ${JEMALLOC_INCLUDE_DIR})
   set(STAR_EXT_LIBS ${JEMALLOC_LIBRARY})
@@ -475,7 +477,6 @@ find_package(PNG REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(OggVorbis REQUIRED)
 find_package(zstd CONFIG REQUIRED)
-find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(opus REQUIRED IMPORTED_TARGET opus)
 
