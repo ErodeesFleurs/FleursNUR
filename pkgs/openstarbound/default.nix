@@ -17,6 +17,7 @@
   libvorbis,
   libopus,
   SDL2,
+  re2,
   ...
 }:
 
@@ -37,6 +38,7 @@ let
       libvorbis
       libopus
       SDL2
+      re2
     ];
 
     nativeBuildInputs = [
