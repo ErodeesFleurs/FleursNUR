@@ -48,7 +48,7 @@ let
     src = fetchFromGitHub ({
       owner = "OpenStarbound";
       repo = "OpenStarbound";
-      rev = "f58d485";
+      rev = "8d887ad";
       fetchSubmodules = false;
       sha256 = "sha256-Ar6BxLHjInw535VR5bV5JCTjZLv+kM0QKsb115O0S5U=";
     });
@@ -65,7 +65,6 @@ let
 
     postPatch = ''
       cp ${./patches/CMakeLists.txt} CMakeLists.txt
-      cp ${./patches/StarMemory.cpp} core/StarMemory.cpp
       mkdir -p dist
     '';
 
