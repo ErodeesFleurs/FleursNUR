@@ -50,7 +50,7 @@ let
     src = fetchFromGitHub ({
       owner = "OpenStarbound";
       repo = "OpenStarbound";
-      rev = "0dcecb8";
+      rev = "f32b49b";
       fetchSubmodules = false;
       sha256 = "sha256-lk9gYvuhQGDmvsbI3DTmN9lg0hL9khKziG94z8vLIRA=";
     });
