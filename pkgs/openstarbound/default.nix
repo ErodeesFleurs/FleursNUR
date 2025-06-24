@@ -16,7 +16,7 @@
   freetype,
   libvorbis,
   libopus,
-  SDL3,
+  sdl3,
   re2,
   ...
 }:
@@ -37,7 +37,7 @@ let
       freetype
       libvorbis
       libopus
-      SDL3
+      sdl3
       re2
     ];
 
