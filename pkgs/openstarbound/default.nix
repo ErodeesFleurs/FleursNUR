@@ -16,7 +16,7 @@
   freetype,
   libvorbis,
   libopus,
-  SDL2,
+  SDL3,
   re2,
   ...
 }:
@@ -37,7 +37,7 @@ let
       freetype
       libvorbis
       libopus
-      SDL2
+      SDL3
       re2
     ];
 
@@ -50,7 +50,7 @@ let
     src = fetchFromGitHub ({
       owner = "OpenStarbound";
       repo = "OpenStarbound";
-      rev = "f32b49b";
+      rev = "f9739f9";
       fetchSubmodules = false;
       sha256 = "sha256-Cul7VqJyc800wTRitM58BqLsniVJ5FdCXs4+wzS4fV8=";
     });
