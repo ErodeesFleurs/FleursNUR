@@ -478,6 +478,7 @@ find_package(Freetype REQUIRED)
 find_package(OggVorbis REQUIRED)
 find_package(zstd CONFIG REQUIRED)
 find_package(re2 CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
 
 pkg_check_modules(opus REQUIRED IMPORTED_TARGET opus)
 
@@ -491,12 +492,20 @@ set(STAR_EXT_LIBS ${STAR_EXT_LIBS}
     PNG::PNG
     PkgConfig::opus
     re2::re2
+    imgui::imgui
     $<IF:$<TARGET_EXISTS:Freetype::Freetype>,Freetype::Freetype,freetype>
     $<IF:$<TARGET_EXISTS:zstd::libzstd_shared>,zstd::libzstd_shared,zstd::libzstd_static>
     ${VORBISFILE_LIBRARY}
     ${VORBIS_LIBRARY}
     ${OGG_LIBRARY}
 )
+
+if(STAR_SYSTEM_FAMILY STREQUAL "unix")
+  set_flag(STAR_USE_CPPTRACE)
+  find_package(cpptrace CONFIG REQUIRED)
+  set(STAR_EXT_LIBS ${STAR_EXT_LIBS} cpptrace::cpptrace)
+  message(STATUS "Using cpptrace")
+endif()
 
 if(STAR_BUILD_GUI)
   find_package(SDL3 CONFIG REQUIRED)

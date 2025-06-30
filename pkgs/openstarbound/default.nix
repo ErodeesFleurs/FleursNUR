@@ -18,6 +18,8 @@
   libopus,
   sdl3,
   re2,
+  cpptrace,
+  imgui,
   ...
 }:
 
@@ -39,6 +41,8 @@ let
       libopus
       sdl3
       re2
+      cpptrace
+      imgui
     ];
 
     nativeBuildInputs = [
@@ -50,7 +54,7 @@ let
     src = fetchFromGitHub ({
       owner = "OpenStarbound";
       repo = "OpenStarbound";
-      rev = "f9739f9";
+      rev = "6d2a4cf";
       fetchSubmodules = false;
       sha256 = "sha256-2RK7+OR1vvbFz8qVJ6oo1kZvW1ae13fXMQvLMHFZuDk=";
     });
