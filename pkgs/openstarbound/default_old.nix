@@ -4,11 +4,22 @@
   writeShellApplication,
   fetchFromGitHub,
   clangStdenv,
-  ninja,
+  gnumake,
   cmake,
   pkg-config,
+  zlib,
+  zstd,
   xorg,
-  vcpkg,
+  glew,
+  libpng,
+  jemalloc,
+  freetype,
+  libvorbis,
+  libopus,
+  sdl3,
+  re2,
+  cpptrace,
+  imgui,
   ...
 }:
 
@@ -18,15 +29,26 @@ let
     version = "nightly";
 
     buildInputs = [
+      zlib
+      zstd
       xorg.libSM
       xorg.libXi
+      glew
+      libpng
+      jemalloc
+      freetype
+      libvorbis
+      libopus
+      sdl3
+      re2
+      cpptrace
+      imgui
     ];
 
     nativeBuildInputs = [
-      ninja
+      gnumake
       cmake
       pkg-config
-      vcpkg
     ];
 
     src = fetchFromGitHub ({
@@ -41,51 +63,15 @@ let
 
     enableParallelBuilding = true;
 
-    # cp ${./patches/CMakeLists.txt} CMakeLists.txt
+    cmakeFlags = [
+      "-DCMAKE_INSTALL_PREFIX=$out"
+      "-DCMAKE_BUILD_TYPE=Release"
+      "-DSTAR_USE_JEMALLOC=ON"
+    ];
+
     postPatch = ''
+      cp ${./patches/CMakeLists.txt} CMakeLists.txt
       mkdir -p dist
-      # Set HOME to a writable directory
-      export HOME=$PWD
-      export VCPKG_ROOT=${vcpkg}
-      export VCPKG_DEFAULT_TRIPLET=x64-linux
-      # Create a writable vcpkg directory for the build
-      export VCPKG_DOWNLOADS="$HOME/vcpkg-downloads"
-      export VCPKG_BINARY_SOURCES="clear;nuget,GitHub,readwrite"
-      mkdir -p "$VCPKG_DOWNLOADS"
-    '';
-
-    configurePhase = ''
-      runHook preConfigure
-      
-      # Set up vcpkg directories
-      export VCPKG_DOWNLOADS="$HOME/vcpkg-downloads"
-      export VCPKG_INSTALLED_DIR="$HOME/vcpkg-installed"
-      mkdir -p "$VCPKG_DOWNLOADS" "$VCPKG_INSTALLED_DIR"
-      
-      # Ensure compilers are available
-      export CC=${clangStdenv.cc}/bin/clang
-      export CXX=${clangStdenv.cc}/bin/clang++
-      
-      cmake -S . -B build \
-        -GNinja \
-        -DCMAKE_MAKE_PROGRAM=${ninja}/bin/ninja \
-        -DCMAKE_C_COMPILER=$CC \
-        -DCMAKE_CXX_COMPILER=$CXX \
-        -DCMAKE_INSTALL_PREFIX=$out \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DSTAR_USE_JEMALLOC=ON \
-        -DCMAKE_TOOLCHAIN_FILE=${vcpkg}/share/vcpkg/scripts/buildsystems/vcpkg.cmake \
-        -DVCPKG_TARGET_TRIPLET=x64-linux \
-        -DVCPKG_INSTALLED_DIR="$VCPKG_INSTALLED_DIR" \
-        -DVCPKG_DOWNLOADS_ROOT="$VCPKG_DOWNLOADS"
-        
-      runHook postConfigure
-    '';
-
-    buildPhase = ''
-      runHook preBuild
-      cmake --build build --preset=linux-release
-      runHook postBuild
     '';
 
     installPhase = ''
