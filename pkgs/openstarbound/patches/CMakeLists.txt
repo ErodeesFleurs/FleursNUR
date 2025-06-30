@@ -456,7 +456,6 @@ elseif(STAR_SYSTEM_NETBSD)
 endif()
 
 # Find all required external libraries, based on build settings...
-
 find_package(PkgConfig REQUIRED)
 
 if(STAR_USE_JEMALLOC)
