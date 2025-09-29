@@ -24,7 +24,7 @@
 }:
 
 let
-  imgui = callPackage ./imgui {};
+  imgui = callPackage ./imgui { };
 in
 let
   openstarbound-raw = clangStdenv.mkDerivation rec {
@@ -55,12 +55,19 @@ let
     ];
 
     src = fetchFromGitHub ({
-      owner = "OpenStarbound";
+      owner = "ErodeesFleurs";
       repo = "OpenStarbound";
-      rev = "6efdfbc";
+      rev = "179c424";
       fetchSubmodules = false;
       sha256 = "sha256-jEAPzCzME3CRU9VyxclOJXllk0/RJcKkjNlZrlSqDg0=";
     });
+
+    # src = fetchgit ({
+    #   url = "https://github.com/ErodeesFleurs/OpenStarbound";
+    #   rev = "6efdfbc";
+    #   branchName = "${version}";
+    #   sha256 = "sha256-OugBw+zW98ECg2PhSMLyOLaBzzWUv2hCMzLpXye/yCQ=";
+    # });
 
     sourceRoot = "source/source";
 
