@@ -57,7 +57,7 @@ let
     src = fetchFromGitHub ({
       owner = "ErodeesFleurs";
       repo = "OpenStarbound";
-      rev = "2ca1e30";
+      rev = "670ef25";
       fetchSubmodules = false;
       sha256 = "sha256-hNXYE0xgm1I62u7v/r9uvHKVyMluRaDDNM34QBJJwHs=";
     });
