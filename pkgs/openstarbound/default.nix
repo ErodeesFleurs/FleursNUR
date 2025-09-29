@@ -59,7 +59,7 @@ let
       repo = "OpenStarbound";
       rev = "2ca1e30";
       fetchSubmodules = false;
-      sha256 = "sha256-ZuaJmJ4vT8p/FFwFYRie7/sBhEro8MTVmek73ekHdRo=";
+      sha256 = "sha256-hNXYE0xgm1I62u7v/r9uvHKVyMluRaDDNM34QBJJwHs=";
     });
 
     # src = fetchgit ({
