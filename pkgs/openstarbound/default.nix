@@ -1,6 +1,4 @@
 {
-  lib,
-  stdenv,
   writeShellApplication,
   fetchFromGitHub,
   callPackage,
@@ -27,7 +25,7 @@ let
   imgui = callPackage ./imgui { };
 in
 let
-  openstarbound-raw = clangStdenv.mkDerivation rec {
+  openstarbound-raw = clangStdenv.mkDerivation {
     pname = "openstarbound-raw";
     version = "nightly";
 
@@ -54,13 +52,13 @@ let
       pkg-config
     ];
 
-    src = fetchFromGitHub ({
-      owner = "ErodeesFleurs";
+    src = fetchFromGitHub {
+      owner = "OpenStarbound";
       repo = "OpenStarbound";
-      rev = "21f5469";
+      rev = "95f4222";
       fetchSubmodules = false;
       sha256 = "sha256-EDYsPLN6PY0MnePRtGVXAT3T38utLM1kJK+Rjb20KDI=";
-    });
+    };
 
     # src = fetchgit ({
     #   url = "https://github.com/ErodeesFleurs/OpenStarbound";
