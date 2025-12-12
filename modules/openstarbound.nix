@@ -14,12 +14,14 @@ let
     if cfg.package != null then
       cfg.package
     else
-      pkgs.openstarbound.override {
-        starboundAssetsPath = cfg.starboundAssetsPath;
-        storageDir = cfg.storageDir;
-        logDir = cfg.logDir;
-        modDir = cfg.modDir;
-        extraAssetDirs = cfg.extraAssetDirs;
+      pkgs.callPackage ../pkgs/openstarbound {
+        inherit
+          starboundAssetsPath
+          storageDir
+          logDir
+          modDir
+          extraAssetDirs
+          ;
       };
 
 in
