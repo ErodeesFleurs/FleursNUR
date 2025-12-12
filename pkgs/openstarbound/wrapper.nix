@@ -2,7 +2,6 @@
   lib,
   makeWrapper,
   clangStdenv,
-  callPackage,
   fetchFromGitHub,
   cmake,
   pkg-config,
@@ -27,6 +26,8 @@
   logDir ? null,
   modDir ? null,
   extraAssetDirs ? [ ],
+  callPackage,
+  ...
 }:
 
 let
@@ -39,6 +40,7 @@ let
     inherit
       lib
       fetchFromGitHub
+      callPackage
       clangStdenv
       cmake
       pkg-config
@@ -71,6 +73,9 @@ in
 clangStdenv.mkDerivation {
   pname = "openstarbound";
   inherit version;
+  src = null;
+  doUnpack = false;
+  unpackPhase = ":";
 
   nativeBuildInputs = [ makeWrapper ];
   # declare the heavy build as a build input so Nix will build it first and
@@ -148,7 +153,7 @@ clangStdenv.mkDerivation {
         runHook postInstall
   '';
 
-  meta = with lib; {
+  meta = {
     description = "OpenStarbound wrapper (light) depending on separate game build";
     platforms = lib.platforms.linux;
   };

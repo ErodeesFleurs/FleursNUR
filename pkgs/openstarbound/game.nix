@@ -19,16 +19,17 @@
   re2,
   cpptrace,
   libcpr,
-  imgui ? null,
+  callPackage,
   ...
 }:
 
 let
+  imgui = callPackage ../imgui { };
   version = "nightly-2025-12-12";
   rev = "f0abd78";
 in
 
-clangStdenv.mkDerivation rec {
+clangStdenv.mkDerivation {
   pname = "openstarbound-game";
   inherit version;
 
@@ -112,11 +113,10 @@ clangStdenv.mkDerivation rec {
     runHook postInstall
   '';
 
-  meta = with lib; {
+  meta = {
     description = "OpenStarbound game build (heavy) - binaries and fallback assets";
     homepage = "https://github.com/OpenStarbound/OpenStarbound";
-    license = licenses.unfree; # upstream game assets may be non-free; adjust if needed
     platforms = lib.platforms.linux;
-    maintainers = with lib.maintainers; [ ];
+    maintainers = [ ];
   };
 }
