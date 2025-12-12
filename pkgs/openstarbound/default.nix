@@ -5,6 +5,7 @@
   copyDesktopItems,
   makeDesktopItem,
   imagemagick,
+  icoutils,
   callPackage,
   clangStdenv,
   cmake,
@@ -78,6 +79,7 @@ clangStdenv.mkDerivation (finalAttrs: {
     makeWrapper
     copyDesktopItems
     imagemagick
+    icoutils
   ];
 
   buildInputs = [
@@ -112,60 +114,62 @@ clangStdenv.mkDerivation (finalAttrs: {
   enableParallelBuilding = true;
 
   installPhase = ''
-        runHook preInstall
+    runHook preInstall
 
-        # Install binaries
-        mkdir -p $out/bin $out/libexec/openstarbound
-        cp -r ../dist/* $out/libexec/openstarbound/
+    # Basic layout and binaries
+    mkdir -p $out/bin $out/libexec/openstarbound $out/share/openstarbound
 
-        # Install the main binary
-        install -Dm755 $out/libexec/openstarbound/starbound $out/libexec/openstarbound/starbound
+    # copy build artifacts if present (some builds may place files in ../dist)
+    cp -r ../dist/* $out/libexec/openstarbound/ >/dev/null 2>&1 || true
 
-        # Install game assets
-        mkdir -p $out/share/openstarbound
-        cp -r ../../assets $out/share/openstarbound/
+    # Ensure main binary is installed and executable
+    if [ -f ../dist/starbound ]; then
+      install -Dm755 ../dist/starbound $out/libexec/openstarbound/starbound
+    elif [ -f $out/libexec/openstarbound/starbound ]; then
+      chmod +x $out/libexec/openstarbound/starbound || true
+    fi
 
-        # Build asset directories JSON array
-        ASSET_DIRS_JSON=""
-        ${lib.concatMapStringsSep "\n" (dir: ''
-          ASSET_DIRS_JSON="$ASSET_DIRS_JSON\"${dir}\","
-        '') assetDirectories}
-        ASSET_DIRS_JSON="$ASSET_DIRS_JSON\"$out/share/openstarbound/assets\""
+    # Install repository-provided fallback assets (small asset pack shipped with repo)
+    if [ -d ../../assets ]; then
+      mkdir -p $out/share/openstarbound/assets
+      cp -r ../../assets/* $out/share/openstarbound/
+    fi
 
-        # Create wrapper script with configured paths
-        makeWrapper $out/libexec/openstarbound/starbound $out/bin/openstarbound \
-          --run 'export XDG_DATA_HOME=''${XDG_DATA_HOME:-$HOME/.local/share}' \
-          --run 'export XDG_CONFIG_HOME=''${XDG_CONFIG_HOME:-$HOME/.config}' \
-          --run 'STORAGE_DIR="${storagePath}"' \
-          --run 'LOG_DIR="${logPath}"' \
-          --run 'MOD_DIR="${modPath}"' \
-          --run 'mkdir -p "$STORAGE_DIR" "$LOG_DIR" "$MOD_DIR"' \
-          --run 'BOOT_CONFIG=$(mktemp -t openstarbound-boot.XXXXXXXXXX.json)' \
-          --run 'trap "rm -f \"$BOOT_CONFIG\"" EXIT' \
-          --run 'cat > "$BOOT_CONFIG" << EOF
+    # Build asset directories JSON array (simple, trimmed)
+    ASSET_DIRS_JSON=""
+    ${lib.concatMapStringsSep " " (dir: ''
+      ASSET_DIRS_JSON="$ASSET_DIRS_JSON\"${dir}\","
+    '') assetDirectories}
+    ASSET_DIRS_JSON="$ASSET_DIRS_JSON\"$out/share/openstarbound/assets\""
+    ASSET_DIRS_JSON="$(echo "$ASSET_DIRS_JSON" | sed 's/,$//')"
+
+    # Create wrapper script that prepares a temporary boot config at runtime
+    makeWrapper $out/libexec/openstarbound/starbound $out/bin/openstarbound \
+      --run 'export XDG_DATA_HOME=''${XDG_DATA_HOME:-$HOME/.local/share}' \
+      --run 'export XDG_CONFIG_HOME=''${XDG_CONFIG_HOME:-$HOME/.config}' \
+      --run 'STORAGE_DIR="${storagePath}"' \
+      --run 'LOG_DIR="${logPath}"' \
+      --run 'MOD_DIR="${modPath}"' \
+      --run 'mkdir -p "$STORAGE_DIR" "$LOG_DIR" "$MOD_DIR"' \
+      --run 'BOOT_CONFIG=$(mktemp -t openstarbound-boot.XXXXXXXXXX.json)' \
+      --run 'trap "rm -f \"$BOOT_CONFIG\"" EXIT' \
+      --run 'cat > "$BOOT_CONFIG" << EOF
     {
-      "assetDirectories": [
-        $ASSET_DIRS_JSON
-      ],
+      "assetDirectories": [ $ASSET_DIRS_JSON ],
       "storageDirectory": "$STORAGE_DIR",
       "logDirectory": "$LOG_DIR"
     }
     EOF' \
-          --add-flags '-bootconfig "$BOOT_CONFIG"'
+      --run 'for a in "$@"; do if [ "$a" = "--print-bootconfig" ]; then cat "$BOOT_CONFIG"; exit 0; fi; done' \
+      --add-flags '-bootconfig "$BOOT_CONFIG"'
 
-        # Install icon - convert from .ico to .png at multiple resolutions
-        mkdir -p $out/share/icons/hicolor/{16x16,32x32,48x48,128x128,256x256}/apps
+    # Install a single icon if available (keep it simple)
+    if [ -f ../client/icon.png ]; then
+      mkdir -p $out/share/icons/hicolor/128x128/apps
+      cp ../client/icon.png $out/share/icons/hicolor/128x128/apps/openstarbound.png || true
+    fi
 
-        # Use the starbound.ico from the source
-        if [ -f ../client/starbound.ico ]; then
-          convert ../client/starbound.ico[0] -resize 16x16 $out/share/icons/hicolor/16x16/apps/openstarbound.png
-          convert ../client/starbound.ico[0] -resize 32x32 $out/share/icons/hicolor/32x32/apps/openstarbound.png
-          convert ../client/starbound.ico[0] -resize 48x48 $out/share/icons/hicolor/48x48/apps/openstarbound.png
-          convert ../client/starbound.ico[0] -resize 128x128 $out/share/icons/hicolor/128x128/apps/openstarbound.png
-          convert ../client/starbound.ico[0] -resize 256x256 $out/share/icons/hicolor/256x256/apps/openstarbound.png
-        fi
-
-        runHook postInstall
+    runHook postInstall
   '';
 
   desktopItems = [
