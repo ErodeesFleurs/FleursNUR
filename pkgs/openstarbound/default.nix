@@ -18,6 +18,7 @@
   sdl3,
   re2,
   cpptrace,
+  libcpr,
   ...
 }:
 
@@ -44,6 +45,7 @@ let
       re2
       cpptrace
       imgui
+      libcpr
     ];
 
     nativeBuildInputs = [
@@ -55,17 +57,10 @@ let
     src = fetchFromGitHub {
       owner = "OpenStarbound";
       repo = "OpenStarbound";
-      rev = "95f4222";
+      rev = "f0abd78";
       fetchSubmodules = false;
-      sha256 = "sha256-HxV8mdN9zx2GVnKXRBMI+fUUXtrXs2cZ33v3gNiMDKE=";
+      sha256 = "sha256-kXAZdwppiWSbWzYsjAT+O12kVxolDwGKTGhl0YlzGfs=";
     };
-
-    # src = fetchgit ({
-    #   url = "https://github.com/ErodeesFleurs/OpenStarbound";
-    #   rev = "6efdfbc";
-    #   branchName = "${version}";
-    #   sha256 = "sha256-OugBw+zW98ECg2PhSMLyOLaBzzWUv2hCMzLpXye/yCQ=";
-    # });
 
     sourceRoot = "source/source";
 

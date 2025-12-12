@@ -5,7 +5,6 @@
   callPackage,
   cmake,
   fetchFromGitHub,
-  fetchpatch,
   darwin,
   glfw,
   libGL,
@@ -66,13 +65,6 @@ let
   };
   vcpkgSource = applyPatches {
     inherit (vcpkg) src;
-    # patches = [
-    #   # Install imgui into split outputs:
-    #   (fetchpatch {
-    #     url = "https://github.com/microsoft/vcpkg/commit/4108dd75ce9731a4fdcf50fd05034405156eaddf.patch";
-    #     hash = "sha256-jXbR0NfyuO8EESmva5A+H3WmBfCG83OiA8ZCcWsRhQA=";
-    #   })
-    # ];
   };
 in
 
@@ -80,8 +72,6 @@ stdenv.mkDerivation (finalAttrs: {
   pname = "imgui";
   inherit version;
   outputs = [
-    # Note: no "dev" because vcpkg installs include/ and imgui-config.cmake
-    # into different prefixes but expects the merged layout at import time
     "out"
   ];
 

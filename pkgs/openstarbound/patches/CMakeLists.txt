@@ -474,6 +474,7 @@ endif()
 find_package(ZLIB REQUIRED)
 find_package(PNG REQUIRED)
 find_package(Freetype REQUIRED)
+find_package(cpr REQUIRED)
 find_package(OggVorbis REQUIRED)
 find_package(zstd CONFIG REQUIRED)
 find_package(re2 CONFIG REQUIRED)
@@ -489,6 +490,7 @@ include_directories(SYSTEM
 set(STAR_EXT_LIBS ${STAR_EXT_LIBS}
     ZLIB::ZLIB
     PNG::PNG
+    cpr::cpr
     PkgConfig::opus
     re2::re2
     imgui::imgui
