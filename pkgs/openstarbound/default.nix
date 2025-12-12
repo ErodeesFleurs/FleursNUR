@@ -5,7 +5,7 @@
   copyDesktopItems,
   makeDesktopItem,
   imagemagick,
-  imgui,
+  callPackage,
   clangStdenv,
   cmake,
   pkg-config,
@@ -53,6 +53,9 @@ let
     modPath
   ]
   ++ extraAssetDirs;
+
+  # Force using the repository's imgui package
+  imguiPkg = callPackage ../imgui { };
 in
 
 clangStdenv.mkDerivation (finalAttrs: {
@@ -91,7 +94,7 @@ clangStdenv.mkDerivation (finalAttrs: {
     sdl3
     re2
     cpptrace
-    imgui
+    imguiPkg
     libcpr
   ];
 
