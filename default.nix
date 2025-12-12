@@ -36,6 +36,6 @@ discoverPackages
   # The `lib`, `modules`, and `overlays` names are special
   # Only include them if they have actual content
   # lib = import ./lib { inherit pkgs; };
-  # modules = import ./modules;
+  modules = import ./modules;
   # overlays = import ./overlays;
 }

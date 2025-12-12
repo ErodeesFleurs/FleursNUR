@@ -35,5 +35,11 @@
 
       # Overlay for integrating with nixpkgs
       overlays.default = import ./overlay.nix;
+
+      # NixOS modules
+      nixosModules = import ./modules;
+
+      # Home Manager modules
+      homeModules = import ./home-modules;
     };
 }
