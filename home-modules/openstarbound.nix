@@ -115,11 +115,11 @@ in
     home.packages = [ openstarboundPackage ];
 
     # Add helpful environment variables for the user
-    home.sessionVariables = {
-      STARBOUND_ASSETS =
-        cfg.starboundAssetsPath or "$HOME/.local/share/Steam/steamapps/common/Starbound/assets";
-      XDG_DATA_HOME = "$HOME/.local/share";
-      XDG_CONFIG_HOME = "$HOME/.config";
+    # Export STARBOUND_ASSETS only when explicitly configured by the user.
+    # Do not override XDG_DATA_HOME or XDG_CONFIG_HOME unconditionally — the
+    # user's environment or other modules should control those.
+    home.sessionVariables = mkIf (cfg.starboundAssetsPath != null) {
+      STARBOUND_ASSETS = cfg.starboundAssetsPath;
     };
 
     # Optional: Create desktop file if requested

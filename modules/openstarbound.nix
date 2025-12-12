@@ -115,20 +115,15 @@ in
   config = mkIf cfg.enable {
     environment.systemPackages = [ openstarboundPackage ];
 
-    # Ensure the package is built with desktop integration if requested
-    assertions = [
-      {
-        assertion = cfg.package == null || cfg.starboundAssetsPath == null;
-        message = ''
-          programs.openstarbound: Cannot set both 'package' and 'starboundAssetsPath'.
-          Either provide a custom package, or let the module build one with your configuration.
-        '';
-      }
-    ];
+    # Allow both a custom package and a starboundAssetsPath to be configured.
+    # If both are provided, the explicit `package` takes precedence (see openstarboundPackage above).
+    # Removing the previous restrictive assertion so callers can decide how to combine settings.
 
-    # Add helpful environment variables system-wide
-    environment.sessionVariables = mkIf (cfg.starboundAssetsPath != null) {
-      STARBOUND_ASSETS = cfg.starboundAssetsPath;
+    # Add helpful environment variables system-wide.
+    # Always populate STARBOUND_ASSETS but use `null` when not configured so
+    # downstream code can detect absence explicitly.
+    environment.sessionVariables = {
+      STARBOUND_ASSETS = cfg.starboundAssetsPath or null;
     };
 
     # Optional: Create systemd user service for easier management

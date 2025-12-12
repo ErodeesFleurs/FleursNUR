@@ -20,13 +20,13 @@
   re2,
   cpptrace,
   libcpr,
+  callPackage,
   # optional overrides for paths
   starboundAssetsPath ? null,
   storageDir ? null,
   logDir ? null,
   modDir ? null,
   extraAssetDirs ? [ ],
-  callPackage,
   ...
 }:
 
@@ -91,66 +91,103 @@ clangStdenv.mkDerivation {
         cp -r ${game}/libexec/openstarbound $out/libexec/ || true
         cp -r ${game}/share/openstarbound $out/share/ || true
 
-        # write a small runtime wrapper script that composes a boot config at run-time
-        cat > $out/bin/openstarbound <<'SH'
-    #!/bin/sh -e
+        # write build-time defaults for runtime wrapper (if any) into libexec
+        cat > $out/libexec/openstarbound/wrapper-build-defaults <<'NIXV'
+        STARBOUND_ASSETS_NIX='${if starboundAssetsPath != null then starboundAssetsPath else ""}'
+        STORAGE_DIR_NIX='${if storageDir != null then storageDir else ""}'
+        LOG_DIR_NIX='${if logDir != null then logDir else ""}'
+        MOD_DIR_NIX='${if modDir != null then modDir else ""}'
+        EXTRA_ASSET_DIRS_NIX='${lib.concatStringsSep ":" extraAssetDirs}'
+    NIXV
+            # write a small runtime wrapper script that composes a boot config at run-time
+            cat > $out/bin/openstarbound <<'SH'
+            #!/bin/sh -e
 
-    # Resolve this script's prefix in the Nix store so we can find sibling libexec/share
-    SELF=$(readlink -f "$0")
-    BIN_DIR=$(dirname "$SELF")
-    PREFIX=$(dirname "$BIN_DIR")
+            # Resolve this script's prefix in the Nix store so we can find sibling libexec/share
+            SELF=$(readlink -f "$0")
+            BIN_DIR=$(dirname "$SELF")
+            PREFIX=$(dirname "$BIN_DIR")
 
-    STARBOUND_BIN="$PREFIX/libexec/openstarbound/starbound"
-    FALLBACK_ASSETS="$PREFIX/share/openstarbound/assets"
+            STARBOUND_BIN="$PREFIX/libexec/openstarbound/starbound"
+            FALLBACK_ASSETS="$PREFIX/share/openstarbound/assets"
 
-    # XDG defaults
-    if [ -z "$XDG_DATA_HOME" ]; then
-      XDG_DATA_HOME="$HOME/.local/share"
-    fi
-    if [ -z "$XDG_CONFIG_HOME" ]; then
-      XDG_CONFIG_HOME="$HOME/.config"
-    fi
+            # XDG defaults
+            if [ -z "$XDG_DATA_HOME" ]; then
+              XDG_DATA_HOME="$HOME/.local/share"
+            fi
+            if [ -z "$XDG_CONFIG_HOME" ]; then
+              XDG_CONFIG_HOME="$HOME/.config"
+            fi
 
-    STORAGE_DIR="$XDG_DATA_HOME/OpenStarbound/storage"
-    LOG_DIR="$XDG_DATA_HOME/OpenStarbound/logs"
-    MOD_DIR="$XDG_DATA_HOME/OpenStarbound/mods"
+            # Load build-time injected defaults if present (packager can set these)
+            if [ -f "$PREFIX/libexec/openstarbound/wrapper-build-defaults" ]; then
+              . "$PREFIX/libexec/openstarbound/wrapper-build-defaults"
+            fi
 
-    mkdir -p "$STORAGE_DIR" "$LOG_DIR" "$MOD_DIR"
-    BOOT_CONFIG=$(mktemp -t openstarbound-boot.XXXXXXXXXX.json)
-    trap 'rm -f "$BOOT_CONFIG"' EXIT
+            # Compute runtime storage/log/mod directories (build-time overrides win)
+            if [ -n "$STORAGE_DIR_NIX" ]; then
+              STORAGE_DIR="$STORAGE_DIR_NIX"
+            else
+              STORAGE_DIR="$XDG_DATA_HOME/OpenStarbound/storage"
+            fi
 
-    # Assemble asset directories (runtime precedence: env STARBOUND_ASSETS, user mods, packaged fallback)
-    ASSETS_JSON=""
-    if [ -n "$STARBOUND_ASSETS" ]; then
-      ASSETS_JSON="$ASSETS_JSON\"$STARBOUND_ASSETS\","
-    fi
-    if [ -n "$MOD_DIR" ]; then
-      ASSETS_JSON="$ASSETS_JSON\"$MOD_DIR\","
-    fi
-    ASSETS_JSON="$ASSETS_JSON\"$FALLBACK_ASSETS\""
-    ASSETS_JSON="$(echo "$ASSETS_JSON" | sed 's/,$//')"
+            if [ -n "$LOG_DIR_NIX" ]; then
+              LOG_DIR="$LOG_DIR_NIX"
+            else
+              LOG_DIR="$XDG_DATA_HOME/OpenStarbound/logs"
+            fi
 
-    cat > "$BOOT_CONFIG" <<JSON
-    {
-      "assetDirectories": [ $ASSETS_JSON ],
-      "storageDirectory": "$STORAGE_DIR",
-      "logDirectory": "$LOG_DIR"
-    }
+            if [ -n "$MOD_DIR_NIX" ]; then
+              MOD_DIR="$MOD_DIR_NIX"
+            else
+              MOD_DIR="$XDG_DATA_HOME/OpenStarbound/mods"
+            fi
+
+            mkdir -p "$STORAGE_DIR" "$LOG_DIR" "$MOD_DIR"
+            BOOT_CONFIG=$(mktemp -t openstarbound-boot.XXXXXXXXXX.json)
+            trap 'rm -f "$BOOT_CONFIG"' EXIT
+
+            # Assemble asset directories (runtime precedence: env STARBOUND_ASSETS, user mods, build-time extraAssetDirs, packaged fallback)
+            ASSETS_JSON=""
+            if [ -n "$STARBOUND_ASSETS" ]; then
+              ASSETS_JSON="$ASSETS_JSON\"$STARBOUND_ASSETS\","
+            fi
+
+            if [ -n "$MOD_DIR" ]; then
+              ASSETS_JSON="$ASSETS_JSON\"$MOD_DIR\","
+            fi
+
+            # inject extra asset dirs from package (colon-separated list)
+            if [ -n "$EXTRA_ASSET_DIRS_NIX" ]; then
+              OLD_IFS="$IFS"; IFS=":"; for d in $EXTRA_ASSET_DIRS_NIX; do
+                if [ -n "$d" ]; then ASSETS_JSON="$ASSETS_JSON\"$d\","; fi
+              done; IFS="$OLD_IFS"
+            fi
+
+            ASSETS_JSON="$ASSETS_JSON\"$FALLBACK_ASSETS\""
+            ASSETS_JSON="$(echo "$ASSETS_JSON" | sed 's/,$//')"
+
+            cat > "$BOOT_CONFIG" <<JSON
+            {
+              "assetDirectories": [ $ASSETS_JSON ],
+              "storageDirectory": "$STORAGE_DIR",
+              "logDirectory": "$LOG_DIR"
+            }
     JSON
 
-    # Support helper flag that prints the generated boot config
-    for a in "$@"; do
-      if [ "$a" = "--print-bootconfig" ]; then
-        cat "$BOOT_CONFIG"
-        exit 0
-      fi
-    done
+            # Support helper flag that prints the generated boot config
+            for a in "$@"; do
+              if [ "$a" = "--print-bootconfig" ]; then
+                cat "$BOOT_CONFIG"
+                exit 0
+              fi
+            done
 
-    exec "$STARBOUND_BIN" -bootconfig "$BOOT_CONFIG" "$@"
+            exec "$STARBOUND_BIN" -bootconfig "$BOOT_CONFIG" "$@"
     SH
-        chmod +x $out/bin/openstarbound
+                chmod +x $out/bin/openstarbound
 
-        runHook postInstall
+                runHook postInstall
   '';
 
   meta = {
