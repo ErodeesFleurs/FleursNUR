@@ -1,7 +1,7 @@
 {
   writeShellApplication,
   fetchFromGitHub,
-  callPackage,
+  imgui,
   clangStdenv,
   gnumake,
   cmake,
@@ -22,9 +22,6 @@
   ...
 }:
 
-let
-  imgui = callPackage ./imgui { };
-in
 let
   openstarbound-raw = clangStdenv.mkDerivation {
     pname = "openstarbound-raw";

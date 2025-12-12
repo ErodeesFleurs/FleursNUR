@@ -10,12 +10,32 @@
   pkgs ? import <nixpkgs> { },
 }:
 
-{
-  # The `lib`, `modules`, and `overlays` names are special
-  lib = import ./lib { inherit pkgs; }; # functions
-  modules = import ./modules; # NixOS modules
-  overlays = import ./overlays; # nixpkgs overlays
+let
+  inherit (pkgs) lib;
 
-  openstarbound = pkgs.callPackage ./pkgs/openstarbound { };
-  uudeck = pkgs.callPackage ./pkgs/uudeck { };
+  # Auto-discover all packages in pkgs/ directory
+  # Each subdirectory with a default.nix is treated as a package
+  discoverPackages =
+    let
+      pkgsDir = ./pkgs;
+      entries = builtins.readDir pkgsDir;
+
+      # Filter to only directories that contain default.nix
+      validPackages = lib.filterAttrs (
+        name: type: type == "directory" && builtins.pathExists (pkgsDir + "/${name}/default.nix")
+      ) entries;
+
+      # Create attrset of packages by calling each with callPackage
+      packageSet = lib.mapAttrs (name: _: pkgs.callPackage (pkgsDir + "/${name}") { }) validPackages;
+    in
+    packageSet;
+
+in
+discoverPackages
+// {
+  # The `lib`, `modules`, and `overlays` names are special
+  # Only include them if they have actual content
+  # lib = import ./lib { inherit pkgs; };
+  # modules = import ./modules;
+  # overlays = import ./overlays;
 }

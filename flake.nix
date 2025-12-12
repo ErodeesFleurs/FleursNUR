@@ -15,6 +15,7 @@
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f system);
     in
     {
+      # All packages (including non-derivations)
       legacyPackages = forAllSystems (
         system:
         import ./default.nix {
@@ -26,8 +27,13 @@
           };
         }
       );
+
+      # Only derivations (buildable packages)
       packages = forAllSystems (
         system: nixpkgs.lib.filterAttrs (_: v: nixpkgs.lib.isDerivation v) self.legacyPackages.${system}
       );
+
+      # Overlay for integrating with nixpkgs
+      overlays.default = import ./overlay.nix;
     };
 }
